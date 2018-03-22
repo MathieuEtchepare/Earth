@@ -1,5 +1,4 @@
 # Earth
-sneak peak
 * Name :
   * Rajazakar
 * Slogan :
