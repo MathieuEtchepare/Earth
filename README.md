@@ -1,7 +1,7 @@
 # Earth
 
-* Name : 
- * Rajazakar
+* Name :
+  * Rajazakar
 * Slogan :
  * Seul le verger torpille quinze cuisines
 * Mascotte :
