@@ -1,6 +1,6 @@
 # Earth
 * Name :
-  * Rajazakar Pénis de table
+  * Rajazakar 
 * Slogan :
   * Seul le verger torpille quinze cuisines
 * Mascotte :
