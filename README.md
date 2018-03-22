@@ -15,4 +15,11 @@ Unity c#
 # Ideas :
 * tilemap
   * earth with water
-  * 
+  * isometric
+  * biome : mountain, desert, plain, forest, snow land, beach, ocean, river => temperatur diagram
+  * structure : village(house, farm, church, cemetery, road, ), 
+  * animals
+  *
+# Structure
+* [] => (x, y, h)
+* 
