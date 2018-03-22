@@ -3,15 +3,13 @@
 * Name :
   * Rajazakar
 * Slogan :
- * Seul le verger torpille quinze cuisines
+  * Seul le verger torpille quinze cuisines
 * Mascotte :
- * Thromidia
+  * Thromidia
 * Project type : 
- * Generator
-* Nom du projet: 
- * projet Terre
+  * Generator
 * Language :
- * Unity c#
+  * Unity c#
 
 # Ideas :
 * tilemap
