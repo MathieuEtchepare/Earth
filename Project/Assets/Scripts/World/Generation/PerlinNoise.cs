@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 public static class PerlinNoise{
     public static float[,] GenerateNoiseMap(int width, int height, int seed, float scale, int octaves, float persistance, float lacunarity)
@@ -35,8 +34,6 @@ public static class PerlinNoise{
                     noiseHeight += perlinValue * amplitude;
                     amplitude *= persistance;
                     frequency *= lacunarity;
-
-                    
                 }
 
                 if (noiseHeight > maxNoiseHeight) maxNoiseHeight = noiseHeight;
@@ -67,19 +64,19 @@ public static class PerlinNoise{
     // Add a circular mask to the perlin noise to have "round border"
     public static float CalculateIslandPelinNoise(int x, int y, int width, int height)
     {
+        float oceanDistance = 50f; // The ocean area around island
         float miWidth = width / 2;
         float miHeight = height / 2;
         float xCenter = x - miWidth; // Center of the circle (0;0) instead of (width/2; height/2)
         float yCenter = y - miHeight;
 
         float distance = Mathf.Sqrt(xCenter * xCenter + yCenter * yCenter);
-        float maxDistance = Mathf.Sqrt(miWidth * miWidth + miHeight * miHeight) - 40f;
+        float maxDistance = Mathf.Sqrt(miWidth * miWidth + miHeight * miHeight) - oceanDistance;
         float delta = distance / maxDistance;
 
-        float value = 1 - delta;
-        if (value < 0) value = 0f;
+        float value = (1 - delta) * 1.5f;
 
-        return value * 1.3f;
+        return Mathf.Clamp(value, 0f, 1f);
     }
 
 }
