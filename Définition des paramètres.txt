@@ -1,0 +1,17 @@
+Valeurs min et max des différents paramètres :
+Animaux
+-Apparence :
+	"Ear W", 0,2
+	"Ear H", 0,3
+	"Tail W", 0,3
+	"Tail H", 0,3
+	"Body W",4,7
+	"Body H",6,12
+	"Paws W",1,4
+	"Paws H",1,6
+	"Head W",3,4
+	"Head H",3,5
+
+-Composition :
+	Force : 1->100
+	Vitesse : 15->75
