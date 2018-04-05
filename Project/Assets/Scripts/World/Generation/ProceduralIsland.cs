@@ -6,7 +6,7 @@ public class ProceduralIsland : MonoBehaviour {
     public int width = 256;
     public int height = 256;
 
-    public int seed = 1;
+    public int seed = 10;
     public float scale = 0.1f;
 
     public int octaves;

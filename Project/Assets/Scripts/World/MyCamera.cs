@@ -20,26 +20,6 @@ public class MyCamera : MonoBehaviour {
         Camera.main.orthographicSize = size;
     }
 
-    /*private void Move()
-    {
-        if (Input.mousePosition.x >= Screen.width - delta)
-        {
-            transform.position += Vector3.right * Time.deltaTime * sensitivity / 4;
-        }else if(Input.mousePosition.x <= 0 + delta)
-        {
-            transform.position -= Vector3.right * Time.deltaTime * sensitivity / 4;
-        }
-
-        if (Input.mousePosition.y >= Screen.height - delta)
-        {
-            transform.position += Vector3.up * Time.deltaTime * sensitivity / 4;
-        }
-        else if (Input.mousePosition.y <= 0 + delta)
-        {
-            transform.position -= Vector3.up * Time.deltaTime * sensitivity / 4;
-        }
-    }*/
-
     private void Move()
     {
         if (Input.GetKey(KeyCode.LeftArrow))
