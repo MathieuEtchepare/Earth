@@ -9,7 +9,7 @@ public class MyCamera : MonoBehaviour {
     void Update()
     {
         Zoom();
-        Move();
+        //Move();
     }
 
     private void Zoom()
@@ -22,19 +22,20 @@ public class MyCamera : MonoBehaviour {
 
     private void Move()
     {
-        if (Input.mousePosition.x >= Screen.width - delta)
-        {
-            transform.position += Vector3.right * Time.deltaTime * sensitivity / 4;
-        }else if(Input.mousePosition.x <= 0 + delta)
+        if (Input.GetKey(KeyCode.LeftArrow))
         {
             transform.position -= Vector3.right * Time.deltaTime * sensitivity / 4;
         }
+        else if (Input.GetKey(KeyCode.RightArrow))
+        {
+            transform.position += Vector3.right * Time.deltaTime * sensitivity / 4;
+        }
 
-        if (Input.mousePosition.y >= Screen.height - delta)
+        if (Input.GetKey(KeyCode.UpArrow))
         {
             transform.position += Vector3.up * Time.deltaTime * sensitivity / 4;
         }
-        else if (Input.mousePosition.y <= 0 + delta)
+        else if (Input.GetKey(KeyCode.DownArrow))
         {
             transform.position -= Vector3.up * Time.deltaTime * sensitivity / 4;
         }
