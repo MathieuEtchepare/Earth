@@ -431,6 +431,7 @@ GameObject:
   - component: {fileID: 1996258076}
   - component: {fileID: 1996258075}
   - component: {fileID: 1996258077}
+  - component: {fileID: 1996258078}
   m_Layer: 0
   m_Name: Simulator
   m_TagString: Untagged
@@ -493,3 +494,16 @@ MonoBehaviour:
   windSpeed: 0
   sunshine: 0
   temperature: 0
+--- !u!114 &1996258078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1996258074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2cb8c001b81f334085c0cb4e81d6c3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actual_year: 0
+  actual_frame: 0
