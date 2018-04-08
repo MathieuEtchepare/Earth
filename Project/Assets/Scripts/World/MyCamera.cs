@@ -9,7 +9,7 @@ public class MyCamera : MonoBehaviour {
     void Update()
     {
         Zoom();
-        //Move();
+        Move();
     }
 
     private void Zoom()
