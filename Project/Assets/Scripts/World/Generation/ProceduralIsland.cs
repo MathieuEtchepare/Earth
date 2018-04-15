@@ -3,6 +3,8 @@ using UnityEngine.Tilemaps;
 
 public class ProceduralIsland : MonoBehaviour {
 
+    public static ProceduralIsland instance = null;
+
     public int width = 256;
     public int height = 256;
 
@@ -17,10 +19,16 @@ public class ProceduralIsland : MonoBehaviour {
     public Tile[] tiles;
     public Tilemap map;
 
-
+    void Awake()
+    {
+        if (instance == null) instance = this;
+        else if (instance != this) Destroy(gameObject);
+        DontDestroyOnLoad(gameObject);
+    }
 
     void Start () {
         GenerateIsland();
+        this.GetComponent<EntityManager>().GenerateAnimals();
 	}
 	
     void GenerateIsland()

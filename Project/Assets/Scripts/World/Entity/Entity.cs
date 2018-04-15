@@ -10,10 +10,20 @@ public abstract class Entity : MonoBehaviour {
 
     protected SpriteRenderer render;
 
-    public int scale = 15;
+    public int scale = 10;
     private int layer = 10;
 
+    public int seed = 0;
+
+    public Vector2 coord;
+
     public void Start()
+    {
+        transform.position = coord;
+        generateGenome(new System.Random(seed));
+        CreateRenderer();
+    }
+    public void CreateRenderer()
     {
         if (GetComponent<SpriteRenderer>())
         {
@@ -31,8 +41,10 @@ public abstract class Entity : MonoBehaviour {
         Texture2D texture = GenerateTexture();
         render.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
         render.sprite.name = "Texture";
-
     }
 
     public abstract Texture2D GenerateTexture();
+    public abstract void generateGenome(System.Random prng);
+
+
 }
