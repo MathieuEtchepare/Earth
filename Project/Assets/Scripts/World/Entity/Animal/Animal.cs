@@ -4,14 +4,36 @@ using UnityEngine;
 
 public class Animal : Entity
 {
+    public float breathSpeed = 0.02f;
+    private bool up = true;
+
+    public int life;
+
     public Animal()
     {
-        
     }
 
     public Animal(Animal dad, Animal mom)
     {
 
+    }
+
+    public void Update()
+    {
+        Breath();
+    }
+
+    private void Breath()
+    {
+        if (transform.localScale.x < scale - scaleUp) up = true;
+        else if(transform.localScale.x > scale + scaleUp) up = false;
+
+        if (up) transform.localScale = new Vector3(transform.localScale.x + breathSpeed, transform.localScale.y + breathSpeed, 0);
+        else transform.localScale = new Vector3(transform.localScale.x - breathSpeed, transform.localScale.y - breathSpeed, 0);
+
+        int oxygene = ProceduralIsland.instance.GetComponent<Atmosphere>().oxygene;
+        if (oxygene > 0) ProceduralIsland.instance.GetComponent<Atmosphere>().oxygene -= Gene.GetGene(composition, "Breath").value;
+        else life--;
     }
 
     public override Texture2D GenerateTexture()
@@ -49,16 +71,24 @@ public class Animal : Entity
 
     public int DetermineWidth()
     {
-        return Gene.GetGene(appearance, "Ear W").value + Gene.GetGene(appearance, "Tail W").value + Gene.GetGene(appearance, "Body W").value + Gene.GetGene(appearance, "Paws W").value + Gene.GetGene(appearance, "Head W").value;
+        int tail = Gene.GetGene(appearance, "Tail W").value;
+        if (Gene.GetGene(appearance, "Tail H").value == 0) tail = 0;
+        return tail + Gene.GetGene(appearance, "Body W").value + Gene.GetGene(appearance, "Head W").value;
     }
 
     public int DetermineHeight()
     {
-        return Gene.GetGene(appearance, "Ear H").value + Gene.GetGene(appearance, "Tail H").value + Gene.GetGene(appearance, "Body H").value + Gene.GetGene(appearance, "Paws H").value + Gene.GetGene(appearance, "Head H").value;
+        int ear = Gene.GetGene(appearance, "Ear H").value;
+        if (Gene.GetGene(appearance, "Ear W").value == 0) ear = 0;
+        return  ear + Gene.GetGene(appearance, "Body H").value + Gene.GetGene(appearance, "Paws H").value + Gene.GetGene(appearance, "Head H").value - 3;
     }
 
     public override void generateGenome(System.Random prng)
     {
+        composition.Add(new Gene("Life", 1, 100, true, prng));
+        life = Gene.GetGene(composition, "Life").value;
+        composition.Add(new Gene("Breath", 0, 10, true, prng));
+
         appearance.Add(new Gene("Ear W", 0, 3, true, prng));
         appearance.Add(new Gene("Ear H", 0, 3, true, prng));
         appearance.Add(new Gene("Ear Type", 0, 2, true, prng));
@@ -66,8 +96,10 @@ public class Animal : Entity
         appearance.Add(new Gene("Tail H", 0, 3, true, prng));
         appearance.Add(new Gene("Body W", 6, 12, true, prng));
         appearance.Add(new Gene("Body H", 4, 7, true, prng));
-        appearance.Add(new Gene("Paws W", 1, 4, true, prng));
-        appearance.Add(new Gene("Paws H", 1, 6, true, prng));
+        appearance.Add(new Gene("Body Type", 0, 3, true, prng));
+        appearance.Add(new Gene("Paws W", 2, (int)(Gene.GetGene(appearance, "Body W").value / 2 - 1), true, prng));
+        appearance.Add(new Gene("Paws H", 2, 7, true, prng));
+        appearance.Add(new Gene("Paws Type", 0, 2, true, prng));
         appearance.Add(new Gene("Head W", 4, 5, true, prng));
         appearance.Add(new Gene("Head H", 4, 6, true, prng));
 
@@ -78,6 +110,5 @@ public class Animal : Entity
         appearance.Add(new Gene("red_2", 0, 255, true, prng));
         appearance.Add(new Gene("green_2", 0, 255, true, prng));
         appearance.Add(new Gene("blue_2", 0, 255, true, prng));
-
     }
 }

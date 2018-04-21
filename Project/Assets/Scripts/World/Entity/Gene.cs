@@ -16,9 +16,11 @@ public class Gene{
     {
         this.name = name;
         this.min = min;
-        this.max = max;
+        if(max < min) this.max = min;
+        else this.max = max;
         this.mutable = mutable;
-        GenerateBySeed(prng);
+
+        this.value = GenerateBySeed(prng);
     }
 
     public Gene(String name, int value, int min, int max, bool mutable)
@@ -26,7 +28,8 @@ public class Gene{
         this.name = name;
         this.value = value;
         this.min = min;
-        this.max = max;
+        if (max < min) this.max = min;
+        else this.max = max;
         this.mutable = mutable;
     }
 
@@ -34,10 +37,11 @@ public class Gene{
     {
         this.name = name;
         this.min = min;
-        this.max = max;
+        if (max < min) this.max = min;
+        else this.max = max;
         this.mutable = mutable;
 
-        value = UnityEngine.Random.Range(min, max);
+        this.value = UnityEngine.Random.Range(min, max + 1);
     }
 
     public void Mutate()
@@ -47,9 +51,9 @@ public class Gene{
         value = Mathf.Clamp(mutation, min, max);
     }
 
-    public void GenerateBySeed(System.Random prng)
+    public int GenerateBySeed(System.Random prng)
     {
-        this.value = prng.Next(this.min, this.max);
+       return prng.Next(this.min, this.max + 1);
     }
 
     public static Gene GetGene(List<Gene> list, string name)
@@ -59,5 +63,10 @@ public class Gene{
             if (name.CompareTo(list[i].name) == 0) return list[i];
         }
         return null;
+    }
+
+    public void print()
+    {
+        Debug.Log("name : " + this.name + " : value : " + this.value);
     }
 }

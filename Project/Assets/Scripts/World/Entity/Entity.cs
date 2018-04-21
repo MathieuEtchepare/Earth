@@ -10,7 +10,9 @@ public abstract class Entity : MonoBehaviour {
 
     protected SpriteRenderer render;
 
-    public int scale = 10;
+    protected int scale = 10;
+    protected float scaleUp = 0.5f;
+
     private int layer = 10;
 
     public int seed = 0;
@@ -35,7 +37,7 @@ public abstract class Entity : MonoBehaviour {
             render = GetComponent<SpriteRenderer>();
         }
 
-        transform.localScale = new Vector3(scale, scale, 0);
+        transform.localScale = new Vector3(Random.Range(scale - scaleUp, scale + scaleUp), Random.Range(scale - 1, scale + 1), 0);
         render.sortingOrder = layer;
 
         Texture2D texture = GenerateTexture();
