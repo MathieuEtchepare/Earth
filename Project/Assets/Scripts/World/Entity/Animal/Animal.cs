@@ -32,7 +32,11 @@ public class Animal : Entity
         else transform.localScale = new Vector3(transform.localScale.x - breathSpeed, transform.localScale.y - breathSpeed, 0);
 
         int oxygene = ProceduralIsland.instance.GetComponent<Atmosphere>().oxygene;
-        if (oxygene > 0) ProceduralIsland.instance.GetComponent<Atmosphere>().oxygene -= Gene.GetGene(composition, "Breath").value;
+        if (oxygene > 0)
+        {
+            ProceduralIsland.instance.GetComponent<Atmosphere>().oxygene -= Gene.GetGene(composition, "Breath").value;
+            ProceduralIsland.instance.GetComponent<Atmosphere>().co2 += Gene.GetGene(composition, "Breath").value;
+        }
         else life--;
     }
 
