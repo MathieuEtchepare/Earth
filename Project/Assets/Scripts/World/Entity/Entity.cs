@@ -19,11 +19,17 @@ public abstract class Entity : MonoBehaviour {
 
     public Vector2 coord;
 
+    public BoxCollider bc;
+   
+
     public void Start()
     {
         transform.position = coord;
         generateGenome(new System.Random(seed));
         CreateRenderer();
+        BoxCollider bc = (BoxCollider)gameObject.AddComponent(typeof(BoxCollider));
+        gameObject.tag = "Entity";
+        gameObject.name = NameGenerator.GenerateName(composition);
     }
     public void CreateRenderer()
     {

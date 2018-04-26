@@ -77,35 +77,65 @@ public class Animal : Entity
     {
         int tail = Gene.GetGene(appearance, "Tail W").value;
         if (Gene.GetGene(appearance, "Tail H").value == 0) tail = 0;
-        return tail + Gene.GetGene(appearance, "Body W").value + Gene.GetGene(appearance, "Head W").value;
+
+        switch (Gene.GetGene(appearance, "Head Pos").value)
+        {
+            case 0:
+                return tail + Gene.GetGene(appearance, "Body W").value + Gene.GetGene(appearance, "Head W").value;
+            case 1:
+                return tail + Gene.GetGene(appearance, "Body W").value;
+            default:
+                return tail + Gene.GetGene(appearance, "Body W").value + Gene.GetGene(appearance, "Head W").value - 2;
+        }
     }
 
     public int DetermineHeight()
     {
         int ear = Gene.GetGene(appearance, "Ear H").value;
         if (Gene.GetGene(appearance, "Ear W").value == 0) ear = 0;
-        return  ear + Gene.GetGene(appearance, "Body H").value + Gene.GetGene(appearance, "Paws H").value + Gene.GetGene(appearance, "Head H").value - 3;
+
+        switch (Gene.GetGene(appearance, "Head Pos").value)
+        {
+            case 0:
+                return ear + Gene.GetGene(appearance, "Paws H").value + Gene.GetGene(appearance, "Head H").value;
+            case 1:
+                return ear + Gene.GetGene(appearance, "Body H").value + Gene.GetGene(appearance, "Paws H").value + Gene.GetGene(appearance, "Head H").value;
+            default:
+                return ear + Gene.GetGene(appearance, "Body H").value + Gene.GetGene(appearance, "Paws H").value + Gene.GetGene(appearance, "Head H").value - 2;
+        }
     }
 
     public override void generateGenome(System.Random prng)
     {
+        composition.Add(new Gene("Syllable Number", 2, 4, true, prng));
+        composition.Add(new Gene("Syllable 0", 0, 19, true, prng));
+        composition.Add(new Gene("Syllable 1", 0, 19, true, prng));
+        composition.Add(new Gene("Syllable 2", 0, 19, true, prng));
+        composition.Add(new Gene("Syllable 3", 0, 19, true, prng));
+
+        composition.Add(new Gene("Life", 1, 100, true, prng));
+        composition.Add(new Gene("Life", 1, 100, true, prng));
+        composition.Add(new Gene("Life", 1, 100, true, prng));
+
         composition.Add(new Gene("Life", 1, 100, true, prng));
         life = Gene.GetGene(composition, "Life").value;
         composition.Add(new Gene("Breath", 0, 10, true, prng));
 
-        appearance.Add(new Gene("Ear W", 0, 3, true, prng));
+        appearance.Add(new Gene("Ear W", 2, 2, true, prng));
         appearance.Add(new Gene("Ear H", 0, 3, true, prng));
-        appearance.Add(new Gene("Ear Type", 0, 2, true, prng));
+        appearance.Add(new Gene("Ear Type", 0, 6, true, prng));
         appearance.Add(new Gene("Tail W", 0, 3, true, prng));
         appearance.Add(new Gene("Tail H", 0, 3, true, prng));
-        appearance.Add(new Gene("Body W", 6, 12, true, prng));
+        appearance.Add(new Gene("Body W", 8, 14, true, prng));
         appearance.Add(new Gene("Body H", 4, 7, true, prng));
         appearance.Add(new Gene("Body Type", 0, 3, true, prng));
-        appearance.Add(new Gene("Paws W", 2, (int)(Gene.GetGene(appearance, "Body W").value / 2 - 1), true, prng));
-        appearance.Add(new Gene("Paws H", 2, 7, true, prng));
-        appearance.Add(new Gene("Paws Type", 0, 2, true, prng));
-        appearance.Add(new Gene("Head W", 4, 5, true, prng));
-        appearance.Add(new Gene("Head H", 4, 6, true, prng));
+        appearance.Add(new Gene("Paws W", 1, (int)(Gene.GetGene(appearance, "Body W").value / 6), true, prng));
+        appearance.Add(new Gene("Paws H", 1, 4, true, prng));
+        appearance.Add(new Gene("Paws Type", 0, 1, true, prng));
+        appearance.Add(new Gene("Head W", 5, 8, true, prng));
+        appearance.Add(new Gene("Head H", 5, 8, true, prng));
+        appearance.Add(new Gene("Head Type", 0, 6, true, prng));
+        appearance.Add(new Gene("Head Pos", 0, 2, true, prng));
 
         appearance.Add(new Gene("red_1", 0, 255, true, prng));
         appearance.Add(new Gene("green_1", 0, 255, true, prng));

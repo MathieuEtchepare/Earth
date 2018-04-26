@@ -27,12 +27,34 @@ public abstract class SpriteGeneration {
             tail[1] = 0;
         }
 
+        int xBody, yBody;
+
+        switch (Gene.GetGene(appearance, "Head Pos").value)
+        {
+            case 0:
+                xBody = Gene.GetGene(appearance, "Head W").value;
+                yBody = h - ear[1] - Gene.GetGene(appearance, "Head H").value + Gene.GetGene(appearance, "Body H").value;
+                break;
+            case 1:
+                xBody = 0;
+                yBody = h - ear[1] - Gene.GetGene(appearance, "Head H").value;
+                break;
+            default:
+                xBody = Gene.GetGene(appearance, "Head W").value - 2;
+                yBody = h - ear[1] - Gene.GetGene(appearance, "Head H").value + 2;
+                break;
+        }
+        Body(appearance, pixel, Gene.GetGene(appearance, "Body W").value, Gene.GetGene(appearance, "Body H").value, xBody, yBody);
         Head(appearance, pixel, Gene.GetGene(appearance, "Head W").value, Gene.GetGene(appearance, "Head H").value, 0, h - ear[1]);
+
+        Ear(appearance, pixel, ear[0], ear[1], 0, h);
         Ear(appearance, pixel, ear[0], ear[1], Gene.GetGene(appearance, "Head W").value - ear[0], h);
-        Body(appearance, pixel, Gene.GetGene(appearance, "Body W").value, Gene.GetGene(appearance, "Body H").value, Gene.GetGene(appearance, "Head W").value, h - ear[1] - Gene.GetGene(appearance, "Head H").value + 2);
-        Leg(appearance, pixel, Gene.GetGene(appearance, "Paws W").value, Gene.GetGene(appearance, "Paws H").value, Gene.GetGene(appearance, "Head W").value, h - ear[1] - Gene.GetGene(appearance, "Head H").value - Gene.GetGene(appearance, "Body H").value + 3);
-        Leg(appearance, pixel, Gene.GetGene(appearance, "Paws W").value, Gene.GetGene(appearance, "Paws H").value, Gene.GetGene(appearance, "Head W").value + Gene.GetGene(appearance, "Body W").value - Gene.GetGene(appearance, "Paws W").value, h - ear[1] - Gene.GetGene(appearance, "Head H").value - Gene.GetGene(appearance, "Body H").value + 3);
-        Tail(appearance, pixel, tail[0], tail[1], Gene.GetGene(appearance, "Head W").value + Gene.GetGene(appearance, "Body W").value, h - ear[1] - Gene.GetGene(appearance, "Head H").value + 2);
+
+        LegBack(appearance, pixel, Gene.GetGene(appearance, "Paws W").value, Gene.GetGene(appearance, "Paws H").value, xBody + 1, yBody - Gene.GetGene(appearance, "Body H").value);
+        Leg(appearance, pixel, Gene.GetGene(appearance, "Paws W").value, Gene.GetGene(appearance, "Paws H").value, xBody + 2 + Gene.GetGene(appearance, "Paws W").value, yBody - Gene.GetGene(appearance, "Body H").value);
+        LegBack(appearance, pixel, Gene.GetGene(appearance, "Paws W").value, Gene.GetGene(appearance, "Paws H").value, xBody + Gene.GetGene(appearance, "Body W").value - (Gene.GetGene(appearance, "Paws W").value * 2 + 1), yBody - Gene.GetGene(appearance, "Body H").value);
+        Leg(appearance, pixel, Gene.GetGene(appearance, "Paws W").value, Gene.GetGene(appearance, "Paws H").value, xBody + Gene.GetGene(appearance, "Body W").value - Gene.GetGene(appearance, "Paws W").value, yBody - Gene.GetGene(appearance, "Body H").value);
+        Tail(appearance, pixel, tail[0], tail[1], xBody + Gene.GetGene(appearance, "Body W").value, yBody);
 
         return pixel;
     }
@@ -45,10 +67,22 @@ public abstract class SpriteGeneration {
             {
                 pixel[i, j] = (int)coloration.PRIMARY;
             }
-            pixel[i, y - h] = (int)coloration.SECONDARY;
+            if(Gene.GetGene(appearance, "Head Type").value == 1 || Gene.GetGene(appearance, "Head Type").value == 2) pixel[i, y - h] = (int)coloration.SECONDARY;
+            else if (Gene.GetGene(appearance, "Head Type").value == 3 && i%2 == 0) pixel[i, y - h] = (int)coloration.SECONDARY;
+            else if (Gene.GetGene(appearance, "Head Type").value == 5 && i != x + w - 1) pixel[i, y - h] = (int)coloration.BLACK;
         }
 
-        pixel[x + 1, y - 2] = (int)coloration.BLACK;
+        if (Gene.GetGene(appearance, "Head Type").value == 2) pixel[x, y - 1] = (int)coloration.SECONDARY;
+        pixel[x, y - 2] = (int)coloration.WHITE;
+        pixel[x, y - 3] = (int)coloration.BLACK;
+        if (Gene.GetGene(appearance, "Head Type").value == 4) pixel[x, y - 4] = (int)coloration.SECONDARY;
+        if (Gene.GetGene(appearance, "Head Type").value == 6) pixel[x, y - h] = (int)coloration.WHITE;
+
+        if (Gene.GetGene(appearance, "Head Type").value == 2) pixel[x + w - 2, y - 1] = (int)coloration.SECONDARY;
+        pixel[x + w - 2, y - 2] = (int)coloration.WHITE;
+        pixel[x + w - 2, y - 3] = (int)coloration.BLACK;
+        if (Gene.GetGene(appearance, "Head Type").value == 4) pixel[x + w - 2, y - 4] = (int)coloration.SECONDARY;
+        if (Gene.GetGene(appearance, "Head Type").value == 6) pixel[x + w - 2, y - h] = (int)coloration.WHITE;
     }
 
     public static void Ear(List<Gene> appearance, int[,] pixel, int w, int h, int x, int y)
@@ -62,12 +96,41 @@ public abstract class SpriteGeneration {
             }
         }
 
-        if(Gene.GetGene(appearance, "Ear Type").value == 1) pixel[x, y - 1] = (int)coloration.NONE;
-        else if (Gene.GetGene(appearance, "Ear Type").value == 2) pixel[x + w - 1, y - 1] = (int)coloration.NONE;
+        switch(Gene.GetGene(appearance, "Ear Type").value)
+        {
+            case 1:
+                if(w == 1 && h == 1) pixel[x, y - 1] = (int)coloration.BLACK;
+                else pixel[x, y - 1] = (int)coloration.NONE;
+                break;
+            case 2:
+                if (w == 1 && h == 1) pixel[x, y - 1] = (int)coloration.BLACK;
+                else pixel[x + 1, y - 1] = (int)coloration.NONE;
+                break;
+            case 3:
+                for (int j = y - h; j < y; j++)
+                {
+                    pixel[x, j] = (int)coloration.NONE;
+                }
+                break;
+            case 4:
+                for (int j = y - h; j < y; j++)
+                {
+                    pixel[x + 1, j] = (int)coloration.NONE;
+                }
+                break;
+            case 5:
+                pixel[x, y - h] = (int)coloration.NONE;
+                break;
+            case 6:
+                pixel[x + 1, y - h] = (int)coloration.NONE;
+                break;
+
+        }
     }
 
     public static void Body(List<Gene> appearance, int[,] pixel, int w, int h, int x, int y)
     {
+ 
         for (int i = x; i < x + w; i++)
         {
             for (int j = y - h; j < y; j++)
@@ -92,11 +155,22 @@ public abstract class SpriteGeneration {
             {
                 pixel[i, j] = (int)coloration.PRIMARY;
             }
-            if (Gene.GetGene(appearance, "Paws Type").value == 1 || Gene.GetGene(appearance, "Paws Type").value == 2) pixel[i, y - h] = (int)coloration.SECONDARY;
         }
-        if (Gene.GetGene(appearance, "Paws Type").value == 2) pixel[x, y - h + 1] = (int)coloration.SECONDARY;
+        if (Gene.GetGene(appearance, "Paws Type").value == 1) pixel[x, y - h] = (int)coloration.SECONDARY;
+    }
+
+    public static void LegBack(List<Gene> appearance, int[,] pixel, int w, int h, int x, int y)
+    {
+        for (int i = x; i < x + w; i++)
+        {
+            for (int j = y - h; j < y; j++)
+            {
+                pixel[i, j] = (int)coloration.BLACK;
+            }
+        }
 
     }
+
     public static void Tail(List<Gene> appearance, int[,] pixel, int w, int h, int x, int y)
     {
         if (w == 0 || h == 0) return;
