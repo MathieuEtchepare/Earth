@@ -7,20 +7,90 @@ public class Animal : Entity
     public float breathSpeed = 0.02f;
     private bool up = true;
 
-    public int life;
+    public float life, currLife;
+    public float food, currFood;
+    public float water, currWater;
+    public float speed;
+
+    public static float CHANGE_BEHAVIOR_PERIOD = 10f; //milliseconds
+    private float lastChangedBehaviorTime = 0; //milliseconds
+    private Vector2 direction;
+
+    public enum Behavior { WAIT, WALK, HUNT, LOVE, LEAK, WATER, EAT };
+    public Behavior currBehaviour;
+
+    public bool isAttacked = false;
 
     public Animal()
     {
+        speed = 0.5f;
+        currWater = water = 10;
     }
 
     public Animal(Animal dad, Animal mom)
     {
-
+        speed = 0.5f;
+        currWater = water = 10;
     }
 
     public void Update()
     {
         Breath();
+        switch (currBehaviour)
+        {
+            case Behavior.WAIT:
+                Wait();
+                break;
+            case Behavior.WALK:
+                Walk();
+                break;
+        }
+    }
+
+    private void GenerateNextBehaviour()
+    {
+        if (isAttacked)
+        {
+            if(Gene.GetGene(appearance, "Bravery").value == 0) currBehaviour = Behavior.LEAK;
+            else currBehaviour = Behavior.HUNT;
+        }
+        else
+        {
+            if(currWater < 1/10*water) currBehaviour = Behavior.WATER;
+            else
+            {
+                if(Random.Range(0, 5) == 0) currBehaviour = Behavior.WAIT;
+                else currBehaviour = Behavior.WALK;
+            }
+        }
+    }
+
+    public void Wait()
+    {
+        lastChangedBehaviorTime -= Time.deltaTime;
+
+        if (lastChangedBehaviorTime <= 0)
+        {
+            lastChangedBehaviorTime = Random.Range(CHANGE_BEHAVIOR_PERIOD, CHANGE_BEHAVIOR_PERIOD * 2);
+            GenerateNextBehaviour();
+
+        }
+    }
+    public void Walk()
+    {
+        lastChangedBehaviorTime -= Time.deltaTime;
+        
+        if (lastChangedBehaviorTime <= 0)
+        {
+            lastChangedBehaviorTime = Random.Range(CHANGE_BEHAVIOR_PERIOD, CHANGE_BEHAVIOR_PERIOD * 2);
+            direction = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
+
+            if (direction.x > 0) render.flipX = true;
+            else render.flipX = false;
+
+            GenerateNextBehaviour();
+        }
+        transform.Translate(direction.x * speed * Time.deltaTime, direction.y * speed * Time.deltaTime, 0);
     }
 
     private void Breath()
@@ -37,7 +107,7 @@ public class Animal : Entity
             ProceduralIsland.instance.GetComponent<Atmosphere>().oxygene -= Gene.GetGene(composition, "Breath").value;
             ProceduralIsland.instance.GetComponent<Atmosphere>().co2 += Gene.GetGene(composition, "Breath").value;
         }
-        else life--;
+        else currLife--;
     }
 
     public override Texture2D GenerateTexture()
@@ -109,6 +179,7 @@ public class Animal : Entity
 
     public override void generateGenome(System.Random prng)
     {
+        //Composition
         composition.Add(new Gene("Syllable Number", 2, 4, true, prng));
         composition.Add(new Gene("Syllable 0", 0, 19, true, prng));
         composition.Add(new Gene("Syllable 1", 0, 19, true, prng));
@@ -121,8 +192,13 @@ public class Animal : Entity
 
         composition.Add(new Gene("Life", 1, 100, true, prng));
         life = Gene.GetGene(composition, "Life").value;
+        currLife = life;
         composition.Add(new Gene("Breath", 0, 10, true, prng));
 
+        //Behavior
+        behavior.Add(new Gene("Bravery", 0, 1, true, prng)); // Check if the animal try to leak or to attack
+
+        //Appearance
         appearance.Add(new Gene("Ear W", 2, 2, true, prng));
         appearance.Add(new Gene("Ear H", 0, 3, true, prng));
         appearance.Add(new Gene("Ear Type", 0, 6, true, prng));

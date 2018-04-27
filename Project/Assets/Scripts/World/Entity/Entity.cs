@@ -27,7 +27,7 @@ public abstract class Entity : MonoBehaviour {
         transform.position = coord;
         generateGenome(new System.Random(seed));
         CreateRenderer();
-        BoxCollider bc = (BoxCollider)gameObject.AddComponent(typeof(BoxCollider));
+        BoxCollider bc = gameObject.AddComponent<BoxCollider>();
         gameObject.tag = "Entity";
         gameObject.name = NameGenerator.GenerateName(composition);
     }
