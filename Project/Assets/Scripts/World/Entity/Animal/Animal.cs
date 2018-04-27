@@ -97,7 +97,9 @@ public class Animal : Entity
         switch (Gene.GetGene(appearance, "Head Pos").value)
         {
             case 0:
-                return ear + Gene.GetGene(appearance, "Paws H").value + Gene.GetGene(appearance, "Head H").value;
+                int biggest = Gene.GetGene(appearance, "Head H").value;
+                if (biggest < Gene.GetGene(appearance, "Body H").value) biggest = Gene.GetGene(appearance, "Body H").value;
+                return ear + Gene.GetGene(appearance, "Paws H").value + biggest;
             case 1:
                 return ear + Gene.GetGene(appearance, "Body H").value + Gene.GetGene(appearance, "Paws H").value + Gene.GetGene(appearance, "Head H").value;
             default:
@@ -133,7 +135,9 @@ public class Animal : Entity
         appearance.Add(new Gene("Paws H", 1, 4, true, prng));
         appearance.Add(new Gene("Paws Type", 0, 1, true, prng));
         appearance.Add(new Gene("Head W", 5, 8, true, prng));
-        appearance.Add(new Gene("Head H", 5, 8, true, prng));
+        int headH = (int)Gene.GetGene(appearance, "Body H").value + (int)Gene.GetGene(appearance, "Paws H").value;
+        if (headH >= 8) headH = 8;
+        appearance.Add(new Gene("Head H", 5, headH, true, prng));
         appearance.Add(new Gene("Head Type", 0, 6, true, prng));
         appearance.Add(new Gene("Head Pos", 0, 2, true, prng));
 

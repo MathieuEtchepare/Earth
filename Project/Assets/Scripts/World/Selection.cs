@@ -8,11 +8,13 @@ public class Selection : MonoBehaviour {
     public Animal selected;
     public GameObject canvas;
     public Text infos;
+    public BoxCollider bc;
 
 	// Use this for initialization
 	void Start () {
         selected = null;
-	}
+        BoxCollider bc = (BoxCollider)gameObject.AddComponent(typeof(BoxCollider));
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -39,9 +41,11 @@ public class Selection : MonoBehaviour {
                     selected = hitInfo.transform.gameObject.GetComponent<Animal>();
                 }
             }
-            else{
+            else
+            {
                 selected = null;
             }
+
         }
     }
 

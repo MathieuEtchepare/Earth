@@ -33,7 +33,7 @@ public abstract class SpriteGeneration {
         {
             case 0:
                 xBody = Gene.GetGene(appearance, "Head W").value;
-                yBody = h - ear[1] - Gene.GetGene(appearance, "Head H").value + Gene.GetGene(appearance, "Body H").value;
+                yBody = h - ear[1];
                 break;
             case 1:
                 xBody = 0;
@@ -130,7 +130,13 @@ public abstract class SpriteGeneration {
 
     public static void Body(List<Gene> appearance, int[,] pixel, int w, int h, int x, int y)
     {
- 
+        
+        Debug.Log(Random.Range(0, 4265465) + 
+            " : " + Gene.GetGene(appearance, "Head Pos").value +
+            " : " + Gene.GetGene(appearance, "Head W").value +
+            " : " + Gene.GetGene(appearance, "Head H").value +
+            " : " + Gene.GetGene(appearance, "Body W").value +
+            " : " + Gene.GetGene(appearance, "Body H").value);
         for (int i = x; i < x + w; i++)
         {
             for (int j = y - h; j < y; j++)
