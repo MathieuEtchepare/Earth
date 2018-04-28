@@ -16,7 +16,7 @@ public class Animal : Entity
     private float lastChangedBehaviorTime = 0; //milliseconds
     private Vector2 direction;
 
-    public enum Behavior { WAIT, WALK, HUNT, LOVE, LEAK, WATER, EAT };
+    public enum Behavior { WAIT, WALK, HUNT, FOLLOW, LOVE, LEAK, WATER, EAT };
     public Behavior currBehaviour;
 
     public bool isAttacked = false;
@@ -91,6 +91,14 @@ public class Animal : Entity
             GenerateNextBehaviour();
         }
         transform.Translate(direction.x * speed * Time.deltaTime, direction.y * speed * Time.deltaTime, 0);
+    }
+
+    void OnCollisionEnter2D(Collision2D col)
+    {
+        direction = new Vector2(-direction.x, -direction.y);
+
+        if (direction.x > 0) render.flipX = true;
+        else render.flipX = false;
     }
 
     private void Breath()
