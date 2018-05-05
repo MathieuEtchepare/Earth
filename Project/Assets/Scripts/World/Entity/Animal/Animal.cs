@@ -7,10 +7,13 @@ public class Animal : Entity
     public float breathSpeed = 0.02f;
     private bool up = true;
 
+    public int age, year;
     public float life, currLife;
     public float food, currFood;
     public float water, currWater;
+    public int breath;
     public float speed;
+    public int weight;
 
     public static float CHANGE_BEHAVIOR_PERIOD = 10f; //milliseconds
     private float lastChangedBehaviorTime = 0; //milliseconds
@@ -23,25 +26,25 @@ public class Animal : Entity
 
     public Animal()
     {
-        speed = 0.5f;
-        currWater = water = 10;
     }
 
     public Animal(Animal dad, Animal mom)
     {
-        speed = 0.5f;
-        currWater = water = 10;
     }
 
     public void Update()
     {
         Breath();
+        Envy();
         switch (currBehaviour)
         {
             case Behavior.WAIT:
                 Wait();
                 break;
             case Behavior.WALK:
+                Walk();
+                break;
+            case Behavior.WATER:
                 Walk();
                 break;
         }
@@ -108,14 +111,27 @@ public class Animal : Entity
 
         if (up) transform.localScale = new Vector3(transform.localScale.x + breathSpeed, transform.localScale.y + breathSpeed, 0);
         else transform.localScale = new Vector3(transform.localScale.x - breathSpeed, transform.localScale.y - breathSpeed, 0);
+    }
 
-        int oxygene = ProceduralIsland.instance.GetComponent<Atmosphere>().oxygene;
-        if (oxygene > 0)
+    private void Envy()
+    {
+        if(year != ProceduralIsland.instance.GetComponent<TimeManagement>().actual_year)
         {
-            ProceduralIsland.instance.GetComponent<Atmosphere>().oxygene -= Gene.GetGene(composition, "Breath").value;
-            ProceduralIsland.instance.GetComponent<Atmosphere>().co2 += Gene.GetGene(composition, "Breath").value;
+            currFood--;
+            currWater--;
+
+            int oxygene = ProceduralIsland.instance.GetComponent<Atmosphere>().oxygene;
+
+            if (oxygene > 0)
+            {
+                ProceduralIsland.instance.GetComponent<Atmosphere>().oxygene -= breath;
+
+                ProceduralIsland.instance.GetComponent<Atmosphere>().co2 += breath;
+            }
+            else currLife--;
+
+            year = ProceduralIsland.instance.GetComponent<TimeManagement>().actual_year;
         }
-        else currLife--;
     }
 
     public override Texture2D GenerateTexture()
@@ -187,24 +203,7 @@ public class Animal : Entity
 
     public override void generateGenome(System.Random prng)
     {
-        //Composition
-        composition.Add(new Gene("Syllable Number", 2, 4, true, prng));
-        composition.Add(new Gene("Syllable 0", 0, 19, true, prng));
-        composition.Add(new Gene("Syllable 1", 0, 19, true, prng));
-        composition.Add(new Gene("Syllable 2", 0, 19, true, prng));
-        composition.Add(new Gene("Syllable 3", 0, 19, true, prng));
-
-        composition.Add(new Gene("Life", 1, 100, true, prng));
-        composition.Add(new Gene("Life", 1, 100, true, prng));
-        composition.Add(new Gene("Life", 1, 100, true, prng));
-
-        composition.Add(new Gene("Life", 1, 100, true, prng));
-        life = Gene.GetGene(composition, "Life").value;
-        currLife = life;
-        composition.Add(new Gene("Breath", 0, 10, true, prng));
-
-        //Behavior
-        behavior.Add(new Gene("Bravery", 0, 1, true, prng)); // Check if the animal try to leak or to attack
+        year = ProceduralIsland.instance.GetComponent<TimeManagement>().actual_year;
 
         //Appearance
         appearance.Add(new Gene("Ear W", 2, 2, true, prng));
@@ -232,5 +231,33 @@ public class Animal : Entity
         appearance.Add(new Gene("red_2", 0, 255, true, prng));
         appearance.Add(new Gene("green_2", 0, 255, true, prng));
         appearance.Add(new Gene("blue_2", 0, 255, true, prng));
+
+        //Composition
+        composition.Add(new Gene("Syllable Number", 2, 4, true, prng));
+        composition.Add(new Gene("Syllable 0", 0, 19, true, prng));
+        composition.Add(new Gene("Syllable 1", 0, 19, true, prng));
+        composition.Add(new Gene("Syllable 2", 0, 19, true, prng));
+        composition.Add(new Gene("Syllable 3", 0, 19, true, prng));
+
+        weight = DetermineHeight() * DetermineWidth();
+
+        int weight_influence = weight / 50;
+
+        composition.Add(new Gene("Thirst", 5, 20, true, prng));
+        water = Gene.GetGene(composition, "Thirst").value - weight_influence;
+        currWater = water;
+        composition.Add(new Gene("Hunger", 5, 20, true, prng));
+        food = Gene.GetGene(composition, "Hunger").value - weight_influence;
+        currFood = food;
+        composition.Add(new Gene("Life", 1, 5, true, prng));
+        life = Gene.GetGene(composition, "Life").value + weight_influence;
+        currLife = life;
+        composition.Add(new Gene("Breath", 0, 10, true, prng));
+        breath = Gene.GetGene(composition, "Breath").value + weight_influence;
+        composition.Add(new Gene("Speed", 100, 200, true, prng));
+        speed = (float)(Gene.GetGene(composition, "Speed").value)/weight;
+        composition.Add(new Gene("Death", 10, 200, true, prng));
+        //Behavior
+        behavior.Add(new Gene("Bravery", 0, 1, true, prng)); // Check if the animal try to leak or to attack
     }
 }

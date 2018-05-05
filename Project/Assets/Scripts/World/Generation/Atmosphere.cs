@@ -19,10 +19,8 @@ public class Atmosphere : MonoBehaviour {
     private int maxSunshine = 100;
 
 
-
-
     // Use this for initialization
-    public void Start () {
+    public void Awake () {
         System.Random prng = new System.Random(GetComponent<ProceduralIsland>().seed);
         oxygene = prng.Next(10000, 15000);
         co2 = prng.Next(1000, 2000);
