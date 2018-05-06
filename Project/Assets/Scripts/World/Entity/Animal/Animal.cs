@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class Animal : Entity
 {
@@ -14,6 +15,7 @@ public class Animal : Entity
     public int breath;
     public float speed;
     public int weight;
+    public int vision;
 
     public static float CHANGE_BEHAVIOR_PERIOD = 10f; //milliseconds
     private float lastChangedBehaviorTime = 0; //milliseconds
@@ -36,10 +38,15 @@ public class Animal : Entity
     {
         Breath();
         Envy();
+
+        if (direction.x > 0) render.flipX = true;
+        else render.flipX = false;
+
+        WaitNextBehaviour();
+
         switch (currBehaviour)
         {
             case Behavior.WAIT:
-                Wait();
                 break;
             case Behavior.WALK:
                 Walk();
@@ -59,16 +66,33 @@ public class Animal : Entity
         }
         else
         {
-            if(currWater < 1/10*water) currBehaviour = Behavior.WATER;
+            if (currWater < 1 / 4 * water)
+            {
+                direction = ScanBlocks(2, ProceduralIsland.instance.water);
+                if (direction.x == 9999 || direction.y == 9999)
+                {
+                    direction = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
+                    currBehaviour = Behavior.WALK;
+                }
+                else
+                {
+                    direction.Normalize();
+                    currBehaviour = Behavior.WATER;
+                }
+            }
             else
             {
-                if(Random.Range(0, 5) == 0) currBehaviour = Behavior.WAIT;
-                else currBehaviour = Behavior.WALK;
+                if (Random.Range(0, 5) == 0) currBehaviour = Behavior.WAIT;
+                else
+                {
+                    direction = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
+                    currBehaviour = Behavior.WALK;
+                }
             }
         }
     }
 
-    public void Wait()
+    public void WaitNextBehaviour()
     {
         lastChangedBehaviorTime -= Time.deltaTime;
 
@@ -76,32 +100,26 @@ public class Animal : Entity
         {
             lastChangedBehaviorTime = Random.Range(CHANGE_BEHAVIOR_PERIOD, CHANGE_BEHAVIOR_PERIOD * 2);
             GenerateNextBehaviour();
-
+            return;
         }
     }
+
     public void Walk()
     {
-        lastChangedBehaviorTime -= Time.deltaTime;
-        
-        if (lastChangedBehaviorTime <= 0)
-        {
-            lastChangedBehaviorTime = Random.Range(CHANGE_BEHAVIOR_PERIOD, CHANGE_BEHAVIOR_PERIOD * 2);
-            direction = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
-
-            if (direction.x > 0) render.flipX = true;
-            else render.flipX = false;
-
-            GenerateNextBehaviour();
-        }
         transform.Translate(direction.x * speed * Time.deltaTime, direction.y * speed * Time.deltaTime, 0);
     }
 
     void OnCollisionEnter2D(Collision2D col)
     {
         direction = new Vector2(-direction.x, -direction.y);
-
         if (direction.x > 0) render.flipX = true;
         else render.flipX = false;
+
+        if (col.transform.tag == "Water")
+        {
+            currWater = water;
+            GenerateNextBehaviour();
+        }
     }
 
     private void Breath()
@@ -201,6 +219,42 @@ public class Animal : Entity
         }
     }
 
+    /*
+     * Return the closest block in the vision Area
+     */
+    private Vector3 ScanBlocks(int blockID, Tilemap map)
+    {
+        Vector3 block = new Vector3(9999, 9999);
+        int demiVision = (int)(vision / 2);
+
+
+        for (int i = -demiVision; i < demiVision; i++)
+        {
+            for(int j = -demiVision; j < demiVision; j++)
+            {
+                if (map.GetTile(new Vector3Int((int)transform.position.x + i, (int)transform.position.y + j, 0)) == ProceduralIsland.instance.tiles[blockID])
+                {
+                    block.x = (int)transform.position.x + i;
+                    block.y = (int)transform.position.y + j;
+                    return block;
+                }
+            }
+        }
+
+        return block;
+    }
+
+    private float DistanceVec(Vector3 vec)
+    {
+        return Mathf.Sqrt(Mathf.Pow(vec.x, 2) + Mathf.Pow(vec.y, 2));
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(this.transform.position, new Vector3(vision, vision, 1));
+    }
+
     public override void generateGenome(System.Random prng)
     {
         year = ProceduralIsland.instance.GetComponent<TimeManagement>().actual_year;
@@ -243,7 +297,7 @@ public class Animal : Entity
 
         int weight_influence = weight / 50;
 
-        composition.Add(new Gene("Thirst", 5, 20, true, prng));
+        composition.Add(new Gene("Thirst", 10, 20, true, prng));
         water = Gene.GetGene(composition, "Thirst").value - weight_influence;
         currWater = water;
         composition.Add(new Gene("Hunger", 5, 20, true, prng));
@@ -254,9 +308,12 @@ public class Animal : Entity
         currLife = life;
         composition.Add(new Gene("Breath", 0, 10, true, prng));
         breath = Gene.GetGene(composition, "Breath").value + weight_influence;
-        composition.Add(new Gene("Speed", 100, 200, true, prng));
-        speed = (float)(Gene.GetGene(composition, "Speed").value)/weight;
+        composition.Add(new Gene("Speed", 50, 150, true, prng));
+        speed = (float)(Gene.GetGene(composition, "Speed").value)/weight + (float)(Gene.GetGene(appearance, "Paws H").value/8);
         composition.Add(new Gene("Death", 10, 200, true, prng));
+        composition.Add(new Gene("Vision", 5, 20, true, prng));
+        vision = Gene.GetGene(composition, "Vision").value + DetermineHeight() / 2;
+
         //Behavior
         behavior.Add(new Gene("Bravery", 0, 1, true, prng)); // Check if the animal try to leak or to attack
     }

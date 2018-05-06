@@ -9,6 +9,7 @@ public class EntityManager : MonoBehaviour {
 
     public int groupe = 10;
 
+    /*
     public void GenerateAnimals()
     {
         for(int grp = 0; grp < groupe; grp++)
@@ -44,9 +45,23 @@ public class EntityManager : MonoBehaviour {
             }
         }
     }
-	
-	// Update is called once per frame
-	void Update () {
+	*/
+
+    public void GenerateAnimals()
+    {
+        GameObject animal = new GameObject();
+        Animal script = animal.AddComponent<Animal>();
+
+        script.coord = new Vector2(0 + .5f, 0 + .5f);
+        script.seed = 56456;
+        animal.transform.parent = pools.transform;
+
+        animals.Add(animal);
+
+    }
+
+    // Update is called once per frame
+    void Update () {
 		
 	}
 }

@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Entity
   - Ground
+  - Water
   layers:
   - Default
   - TransparentFX
