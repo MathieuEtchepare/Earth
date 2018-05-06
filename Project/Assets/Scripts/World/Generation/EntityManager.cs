@@ -45,8 +45,9 @@ public class EntityManager : MonoBehaviour {
             }
         }
     }
-	*/
+    */
 
+  
     public void GenerateAnimals()
     {
         GameObject animal = new GameObject();
@@ -57,6 +58,15 @@ public class EntityManager : MonoBehaviour {
         animal.transform.parent = pools.transform;
 
         animals.Add(animal);
+
+        GameObject animal_2 = new GameObject();
+        Animal script_2 = animal_2.AddComponent<Animal>();
+
+        script_2.coord = new Vector2(0 + .5f, 0 + .5f);
+        script_2.seed = 540412;
+        animal_2.transform.parent = pools.transform;
+
+        animals.Add(animal_2);
 
     }
 

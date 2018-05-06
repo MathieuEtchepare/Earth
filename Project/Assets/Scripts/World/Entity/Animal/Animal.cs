@@ -54,6 +54,9 @@ public class Animal : Entity
             case Behavior.WATER:
                 Walk();
                 break;
+            case Behavior.HUNT:
+                Walk();
+                break;
         }
     }
 
@@ -78,6 +81,19 @@ public class Animal : Entity
                 {
                     direction.Normalize();
                     currBehaviour = Behavior.WATER;
+                }
+            }else if(currFood < 1 / 4 * food)
+            {
+                direction = ScanEntity(false);
+                if (direction.x == 9999 || direction.y == 9999)
+                {
+                    direction = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
+                    currBehaviour = Behavior.WALK;
+                }
+                else
+                {
+                    direction.Normalize();
+                    currBehaviour = Behavior.HUNT;
                 }
             }
             else
@@ -224,7 +240,7 @@ public class Animal : Entity
      */
     private Vector3 ScanBlocks(int blockID, Tilemap map)
     {
-        Vector3 block = new Vector3(9999, 9999);
+        Vector3 pos = new Vector3(9999, 9999);
         int demiVision = (int)(vision / 2);
 
 
@@ -234,19 +250,63 @@ public class Animal : Entity
             {
                 if (map.GetTile(new Vector3Int((int)transform.position.x + i, (int)transform.position.y + j, 0)) == ProceduralIsland.instance.tiles[blockID])
                 {
-                    block.x = (int)transform.position.x + i;
-                    block.y = (int)transform.position.y + j;
-                    return block;
+                    pos.x = i;
+                    pos.y = j;
+                    return pos;
                 }
             }
         }
 
-        return block;
+        return pos;
+    }
+
+    /*
+     * Return the closest block in the vision Area
+     */
+    private Vector3 ScanEntity(bool same)
+    {
+        Vector3 pos = new Vector3(9999, 9999);
+        Debug.Log("search");
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, vision);
+        for(int i = 0; i < colliders.Length; i++)
+        {
+            if(colliders[i].tag == "Entity")
+            {
+                if (SameSpecies(colliders[i].GetComponent<Animal>()) == same){
+                    pos.x = colliders[i].GetComponent<Animal>().transform.position.x - (int)transform.position.x;
+                    pos.y = colliders[i].GetComponent<Animal>().transform.position.y - (int)transform.position.y;
+                    Debug.Log(pos);
+                    return pos;
+                }
+            }
+        }
+        return pos;
     }
 
     private float DistanceVec(Vector3 vec)
     {
         return Mathf.Sqrt(Mathf.Pow(vec.x, 2) + Mathf.Pow(vec.y, 2));
+    }
+
+    private bool SameSpecies(Animal others)
+    {
+        int difference = 0;
+
+        for(int i = 0; i < appearance.Count; i++)
+        {
+            if (appearance[i].value != others.appearance[i].value) difference++;
+        }
+        for (int i = 0; i < composition.Count; i++)
+        {
+            if (composition[i].value != others.composition[i].value) difference++;
+        }
+        for (int i = 0; i < behavior.Count; i++)
+        {
+            if (behavior[i].value != others.behavior[i].value) difference++;
+        }
+
+        if (difference > 10) return false;
+        return true;
     }
 
     private void OnDrawGizmosSelected()
@@ -316,5 +376,6 @@ public class Animal : Entity
 
         //Behavior
         behavior.Add(new Gene("Bravery", 0, 1, true, prng)); // Check if the animal try to leak or to attack
+        behavior.Add(new Gene("Carnivorous", 0, 1, true, prng)); // Check if the animal try to leak or to attack
     }
 }
