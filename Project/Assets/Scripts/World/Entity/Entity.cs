@@ -31,7 +31,7 @@ public abstract class Entity : MonoBehaviour {
         rg2D.freezeRotation = true;
         gameObject.tag = "Entity";
         gameObject.layer = 8;
-        gameObject.name = NameGenerator.GenerateName(composition);
+        gameObject.name = AnimalNameGenerator.GenerateName(composition);
     }
 
     public void CreateRenderer()

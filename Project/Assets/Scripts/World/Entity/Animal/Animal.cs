@@ -175,7 +175,7 @@ public class Animal : Entity
 
         Texture2D texture = new Texture2D(width, height);
 
-        int[,] sprite = SpriteGeneration.Entire(appearance, width, height);
+        int[,] sprite = AnimalSpriteGeneration.Entire(appearance, width, height);
 
 
         float[] colors = { Gene.GetGene(appearance, "red_1").value, Gene.GetGene(appearance, "green_1").value, Gene.GetGene(appearance, "blue_1").value,
@@ -272,7 +272,7 @@ public class Animal : Entity
         {
             if(colliders[i].tag == "Entity")
             {
-                if (SameSpecies(colliders[i].GetComponent<Animal>()) == same){
+                if (colliders[i].GetComponent<Animal>() != null && SameSpecies(colliders[i].GetComponent<Animal>()) == same){
                     pos.x = colliders[i].GetComponent<Animal>().transform.position.x - (int)transform.position.x;
                     pos.y = colliders[i].GetComponent<Animal>().transform.position.y - (int)transform.position.y;
                     Debug.Log(pos);

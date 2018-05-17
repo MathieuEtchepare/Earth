@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class Selection : MonoBehaviour {
 
-    public Animal selected, prevSelected;
+    public Entity selected, prevSelected;
     public GameObject canvas;
     public Button close;
     public ScrollRect scroll;
@@ -34,12 +34,12 @@ public class Selection : MonoBehaviour {
         else{
             canvas.SetActive(true);
             infos.text = "Name: " + selected.name + "\n" ;
-            infos.text += "Life: " + selected.currLife + " / " + selected.life + "\n";
-            infos.text += "Food: " + selected.currFood + " / " + selected.food + "\n";
-            infos.text += "Water: " + selected.currWater + " / " + selected.water + "\n";
-            infos.text += "Breath: " + selected.breath + "\n";
-            infos.text += "Speed: " + selected.speed + "\n";
-            infos.text += "Weight: " + selected.weight + "\n";
+            //infos.text += "Life: " + selected.currLife + " / " + selected.life + "\n";
+            //infos.text += "Food: " + selected.currFood + " / " + selected.food + "\n";
+            //infos.text += "Water: " + selected.currWater + " / " + selected.water + "\n";
+            //infos.text += "Breath: " + selected.breath + "\n";
+            //infos.text += "Speed: " + selected.speed + "\n";
+            //infos.text += "Weight: " + selected.weight + "\n";
             genes = scroll.content.GetComponent<GeneList>();
             if (selected != prevSelected){
                 disp_selected = null;
@@ -73,7 +73,7 @@ public class Selection : MonoBehaviour {
             RaycastHit2D hit = Physics2D.Raycast(new Vector2(target.x, target.y), Vector2.zero, 0f, 1<<LayerMask.NameToLayer("Entity"));
             if (hit) {
                 prevSelected = selected;
-                selected = hit.transform.gameObject.GetComponent<Animal>();
+                selected = hit.transform.gameObject.GetComponent<Entity>();
             }
         }
     }

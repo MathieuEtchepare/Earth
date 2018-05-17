@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class SpriteGeneration {
+public abstract class AnimalSpriteGeneration {
 
     enum coloration {NONE, PRIMARY, SECONDARY, BLACK, WHITE};
 

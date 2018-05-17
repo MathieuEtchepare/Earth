@@ -31,8 +31,9 @@ public class ProceduralIsland : MonoBehaviour {
     void Start () {
         GenerateIsland();
         this.GetComponent<EntityManager>().GenerateAnimals();
-	}
-	
+        this.GetComponent<EntityManager>().GenerateFlowers();
+    }
+
     void GenerateIsland()
     {
         float[,] noiseMap = PerlinNoise.GenerateNoiseMap(width, height, seed, scale, octaves, persistance, lacunarity);
