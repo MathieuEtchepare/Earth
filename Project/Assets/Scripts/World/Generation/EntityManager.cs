@@ -11,7 +11,7 @@ public class EntityManager : MonoBehaviour {
 
     public int groupe = 10;
 
-    
+    /*
     public void GenerateAnimals()
     {
         for(int grp = 0; grp < groupe; grp++)
@@ -41,12 +41,16 @@ public class EntityManager : MonoBehaviour {
 
                 script.coord = new Vector2(x + xGroup + .5f, y + yGroup + .5f);
                 script.seed = seed;
+
+                script.GenerateGenome(new System.Random(script.seed));
+                script.Generate();
+
                 animal.transform.parent = pools.transform;
-        
                 animals.Add(animal);
             }
         }
     }
+    **/
 
     public void GenerateFlowers()
     {
@@ -77,38 +81,51 @@ public class EntityManager : MonoBehaviour {
 
                 script.coord = new Vector2(x + xGroup + .5f, y + yGroup + .5f);
                 script.seed = seed;
-                flower.transform.parent = pools.transform;
 
+                script.GenerateGenome(new System.Random(script.seed));
+                script.Generate();
+
+                flower.transform.parent = pools.transform;
                 flowers.Add(flower);
             }
         }
     }
 
-    /*
+    
       public void GenerateAnimals()
       {
-          GameObject animal = new GameObject();
-          Animal script = animal.AddComponent<Animal>();
+            GameObject animal = new GameObject();
+            Animal script = animal.AddComponent<Animal>();
+            script.coord = new Vector2(0 + .5f, 0 + .5f);
+            script.seed = 56456;
 
-          script.coord = new Vector2(0 + .5f, 0 + .5f);
-          script.seed = 56456;
-          animal.transform.parent = pools.transform;
+            script.GenerateGenome(new System.Random(script.seed));
+            script.Generate();
 
-          animals.Add(animal);
+            animal.transform.parent = pools.transform;
+            animals.Add(animal);
 
-          GameObject animal_2 = new GameObject();
-          Animal script_2 = animal_2.AddComponent<Animal>();
+            GameObject animal_2 = new GameObject();
+            Animal script_2 = animal_2.AddComponent<Animal>();
+            script_2.coord = new Vector2(0 + .5f, 0 + .5f);
+            script_2.seed = 56456;
 
-          script_2.coord = new Vector2(0 + .5f, 0 + .5f);
-          script_2.seed = 540412;
-          animal_2.transform.parent = pools.transform;
+            script_2.GenerateGenome(new System.Random(script_2.seed));
+            script_2.Generate();
 
-          animals.Add(animal_2);
+            animal_2.transform.parent = pools.transform;
+            animals.Add(animal_2);
 
       }
 
-      // Update is called once per frame
-      void Update () {
+    public void AddAnimal(GameObject animal)
+    {
+        animal.transform.parent = pools.transform;
+        animals.Add(animal);
+    }
 
-      }*/
+    // Update is called once per frame
+    void Update () {
+
+      }
 }

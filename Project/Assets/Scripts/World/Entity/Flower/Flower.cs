@@ -73,7 +73,7 @@ public class Flower : Entity
         //Gizmos.DrawWireCube(this.transform.position, new Vector3(vision, vision, 1));
     }
 
-    public override void generateGenome(System.Random prng)
+    public override void GenerateGenome(System.Random prng)
     {
         year = ProceduralIsland.instance.GetComponent<TimeManagement>().actual_year;
 

@@ -9,7 +9,7 @@ public class Animal : Entity
     private bool up = true;
 
     public int age, year;
-    public float life, currLife;
+    public float life, currLife, damage;
     public float food, currFood;
     public float water, currWater;
     public int breath;
@@ -17,17 +17,18 @@ public class Animal : Entity
     public int weight;
     public int vision;
 
-    public static float CHANGE_BEHAVIOR_PERIOD = 10f; //milliseconds
+    public static float CHANGE_BEHAVIOR_PERIOD = 2f; //milliseconds
     private float lastChangedBehaviorTime = 0; //milliseconds
     private Vector2 direction;
 
-    public enum Behavior { WAIT, WALK, HUNT, FOLLOW, LOVE, LEAK, WATER, EAT };
+    public enum Behavior {WAIT, WALK, HUNT, FOLLOW, LOVE, LEAK, WATER, EAT };
     public Behavior currBehaviour;
 
-    public bool isAttacked = false;
+    public int isAttacked;
 
     public Animal()
     {
+
     }
 
     public Animal(Animal dad, Animal mom)
@@ -57,46 +58,55 @@ public class Animal : Entity
             case Behavior.HUNT:
                 Walk();
                 break;
+            case Behavior.LEAK:
+                Leak();
+                break;
+            case Behavior.LOVE:
+                Walk();
+                break;
         }
     }
 
     private void GenerateNextBehaviour()
     {
-        if (isAttacked)
+        isAttacked--;
+        if(currBehaviour != Behavior.LOVE) currBehaviour = Behavior.WAIT;
+
+        if (isAttacked > 0)
         {
-            if(Gene.GetGene(appearance, "Bravery").value == 0) currBehaviour = Behavior.LEAK;
+            if (Gene.GetGene(behavior, "Bravery").value == 0) currBehaviour = Behavior.LEAK;
             else currBehaviour = Behavior.HUNT;
         }
         else
         {
-            if (currWater < 1 / 4 * water)
+            if (currWater < .5f * water && currBehaviour == Behavior.WAIT)
             {
                 direction = ScanBlocks(2, ProceduralIsland.instance.water);
-                if (direction.x == 9999 || direction.y == 9999)
-                {
-                    direction = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
-                    currBehaviour = Behavior.WALK;
-                }
-                else
+                if (direction.x != 9999 && direction.y != 9999)
                 {
                     direction.Normalize();
                     currBehaviour = Behavior.WATER;
                 }
-            }else if(currFood < 1 / 4 * food)
+            }
+            if (currFood <= .5f * food && currBehaviour == Behavior.WAIT)
             {
                 direction = ScanEntity(false);
-                if (direction.x == 9999 || direction.y == 9999)
-                {
-                    direction = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
-                    currBehaviour = Behavior.WALK;
-                }
-                else
+                if (direction.x != 9999 && direction.y != 9999)
                 {
                     direction.Normalize();
                     currBehaviour = Behavior.HUNT;
                 }
             }
-            else
+            if (currBehaviour == Behavior.WAIT && age > 10 && Random.Range(0, 10) == 0)
+            {
+                direction = ScanEntity(true);
+                if (direction.x != 9999 && direction.y != 9999)
+                {
+                    direction.Normalize();
+                    currBehaviour = Behavior.LOVE;
+                }
+            }
+            if (currBehaviour == Behavior.WAIT)
             {
                 if (Random.Range(0, 5) == 0) currBehaviour = Behavior.WAIT;
                 else
@@ -125,6 +135,21 @@ public class Animal : Entity
         transform.Translate(direction.x * speed * Time.deltaTime, direction.y * speed * Time.deltaTime, 0);
     }
 
+    public void Leak()
+    {
+        if (-direction.x > 0) render.flipX = true;
+        else render.flipX = false;
+        transform.Translate(-direction.x * speed * 1.2f * Time.deltaTime, -direction.y * speed * 1.2f * Time.deltaTime, 0);
+    }
+
+    public void Attacked(float dmg, Vector2 pos)
+    {
+        this.isAttacked = 5;
+        direction.Normalize();
+        GenerateNextBehaviour();
+        this.currLife -= dmg;
+
+    }
     void OnCollisionEnter2D(Collision2D col)
     {
         direction = new Vector2(-direction.x, -direction.y);
@@ -135,13 +160,38 @@ public class Animal : Entity
         {
             currWater = water;
             GenerateNextBehaviour();
+            return;
+        }
+
+        if (currBehaviour == Behavior.HUNT && col.transform.tag == "Entity")
+        {
+            Animal a = col.gameObject.GetComponent<Animal>();
+            if(a != null && !SameSpecies(a))
+            {
+                Debug.Log("hit");
+                a.Attacked(this.damage, this.transform.position);
+                currBehaviour = Behavior.WAIT;
+                lastChangedBehaviorTime = Random.Range(CHANGE_BEHAVIOR_PERIOD, CHANGE_BEHAVIOR_PERIOD);
+                this.currFood += 5;
+                if (this.currFood > this.food) this.currFood = this.food;
+            }
+        }
+
+        if (currBehaviour == Behavior.LOVE && col.transform.tag == "Entity")
+        {
+            Animal a = col.gameObject.GetComponent<Animal>();
+            if (a != null && SameSpecies(a))
+            {
+                Children(a);
+                currBehaviour = Behavior.WALK;
+            }
         }
     }
 
     private void Breath()
     {
         if (transform.localScale.x < scale - scaleUp) up = true;
-        else if(transform.localScale.x > scale + scaleUp) up = false;
+        else if (transform.localScale.x > scale + scaleUp) up = false;
 
         if (up) transform.localScale = new Vector3(transform.localScale.x + breathSpeed, transform.localScale.y + breathSpeed, 0);
         else transform.localScale = new Vector3(transform.localScale.x - breathSpeed, transform.localScale.y - breathSpeed, 0);
@@ -149,10 +199,10 @@ public class Animal : Entity
 
     private void Envy()
     {
-        if(year != ProceduralIsland.instance.GetComponent<TimeManagement>().actual_year)
+        if (year != ProceduralIsland.instance.GetComponent<TimeManagement>().actual_year)
         {
-            currFood--;
-            currWater--;
+            if(currFood > 0)currFood--;
+            if(currWater > 0) currWater--;
 
             int oxygene = ProceduralIsland.instance.GetComponent<Atmosphere>().oxygene;
 
@@ -164,6 +214,7 @@ public class Animal : Entity
             }
             else currLife--;
 
+            age++;
             year = ProceduralIsland.instance.GetComponent<TimeManagement>().actual_year;
         }
     }
@@ -183,10 +234,10 @@ public class Animal : Entity
 
         for (int i = 0; i < width; i++)
         {
-            for(int j = 0; j < height; j++)
+            for (int j = 0; j < height; j++)
             {
-                if (sprite[i, j] == 1) texture.SetPixel(i, j, new Color(colors[0]/255, colors[1]/255, colors[2]/255));
-                else if (sprite[i, j] == 2) texture.SetPixel(i, j, new Color(colors[3]/255, colors[4]/255, colors[5]/255));
+                if (sprite[i, j] == 1) texture.SetPixel(i, j, new Color(colors[0] / 255, colors[1] / 255, colors[2] / 255));
+                else if (sprite[i, j] == 2) texture.SetPixel(i, j, new Color(colors[3] / 255, colors[4] / 255, colors[5] / 255));
                 else if (sprite[i, j] == 3) texture.SetPixel(i, j, new Color(0, 0, 0));
                 else if (sprite[i, j] == 4) texture.SetPixel(i, j, new Color(1, 1, 1));
                 else texture.SetPixel(i, j, new Color(1, 1, 1, 0));
@@ -246,7 +297,7 @@ public class Animal : Entity
 
         for (int i = -demiVision; i < demiVision; i++)
         {
-            for(int j = -demiVision; j < demiVision; j++)
+            for (int j = -demiVision; j < demiVision; j++)
             {
                 if (map.GetTile(new Vector3Int((int)transform.position.x + i, (int)transform.position.y + j, 0)) == ProceduralIsland.instance.tiles[blockID])
                 {
@@ -268,11 +319,12 @@ public class Animal : Entity
         Vector3 pos = new Vector3(9999, 9999);
         Debug.Log("search");
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, vision);
-        for(int i = 0; i < colliders.Length; i++)
+        for (int i = 0; i < colliders.Length; i++)
         {
-            if(colliders[i].tag == "Entity")
+            if (colliders[i].tag == "Entity" && colliders[i].GetComponent<Animal>())
             {
-                if (colliders[i].GetComponent<Animal>() != null && SameSpecies(colliders[i].GetComponent<Animal>()) == same){
+                if (SameSpecies(colliders[i].GetComponent<Animal>()) == same)
+                {
                     pos.x = colliders[i].GetComponent<Animal>().transform.position.x - (int)transform.position.x;
                     pos.y = colliders[i].GetComponent<Animal>().transform.position.y - (int)transform.position.y;
                     Debug.Log(pos);
@@ -292,7 +344,7 @@ public class Animal : Entity
     {
         int difference = 0;
 
-        for(int i = 0; i < appearance.Count; i++)
+        for (int i = 0; i < appearance.Count; i++)
         {
             if (appearance[i].value != others.appearance[i].value) difference++;
         }
@@ -315,7 +367,58 @@ public class Animal : Entity
         Gizmos.DrawWireCube(this.transform.position, new Vector3(vision, vision, 1));
     }
 
-    public override void generateGenome(System.Random prng)
+    public void Children(Animal a)
+    {
+        GameObject animal = new GameObject();
+        Animal script = animal.AddComponent<Animal>();
+
+        script.coord = new Vector2(transform.position.x, transform.position.y);
+        script.seed = this.seed + Random.Range(0, 20);
+
+        for (int i = 0; i < appearance.Count; i++)
+        {
+            if (Random.Range(0, 2) == 0) script.appearance.Add(this.appearance[i]);
+            else script.appearance.Add(a.appearance[i]);
+
+            if (Random.Range(0, 50) == 0) script.appearance[i].Mutate();
+        }
+
+        for (int i = 0; i < composition.Count; i++)
+        {
+            if (Random.Range(0, 2) == 0) script.composition.Add(this.composition[i]);
+            else script.composition.Add(a.composition[i]);
+
+            if (Random.Range(0, 50) == 0) script.composition[i].Mutate();
+        }
+
+        for (int i = 0; i < behavior.Count; i++)
+        {
+            if (Random.Range(0, 2) == 0) script.behavior.Add(this.behavior[i]);
+            else script.behavior.Add(a.behavior[i]);
+
+            if (Random.Range(0, 20) == 0) script.behavior[i].Mutate();
+        }
+
+
+        script.weight = script.DetermineHeight() * script.DetermineWidth();
+        int weight_influence = script.weight / 50;
+        script.water = Gene.GetGene(script.composition, "Thirst").value - weight_influence;
+        script.currWater = script.water;
+        script.food = Gene.GetGene(script.composition, "Hunger").value - weight_influence;
+        script.currFood = script.food;
+        script.life = Gene.GetGene(script.composition, "Life").value + weight_influence;
+        script.currLife = script.life;
+        script.breath = Gene.GetGene(script.composition, "Breath").value + weight_influence;
+        script.speed = (float)(Gene.GetGene(script.composition, "Speed").value) / script.weight + (float)(Gene.GetGene(script.appearance, "Paws H").value / 8);
+        script.vision = Gene.GetGene(script.composition, "Vision").value + script.DetermineHeight() / 2;
+        script.damage = Gene.GetGene(script.composition, "Damage").value + weight_influence;
+
+        script.Generate();
+
+        ProceduralIsland.instance.GetComponent<EntityManager>().AddAnimal(animal);
+    }
+
+    public override void GenerateGenome(System.Random prng)
     {
         year = ProceduralIsland.instance.GetComponent<TimeManagement>().actual_year;
 
@@ -369,10 +472,12 @@ public class Animal : Entity
         composition.Add(new Gene("Breath", 0, 10, true, prng));
         breath = Gene.GetGene(composition, "Breath").value + weight_influence;
         composition.Add(new Gene("Speed", 50, 150, true, prng));
-        speed = (float)(Gene.GetGene(composition, "Speed").value)/weight + (float)(Gene.GetGene(appearance, "Paws H").value/8);
+        speed = (float)(Gene.GetGene(composition, "Speed").value) / weight + (float)(Gene.GetGene(appearance, "Paws H").value / 8);
         composition.Add(new Gene("Death", 10, 200, true, prng));
         composition.Add(new Gene("Vision", 5, 20, true, prng));
         vision = Gene.GetGene(composition, "Vision").value + DetermineHeight() / 2;
+        composition.Add(new Gene("Damage", 1, 5, true, prng));
+        damage = Gene.GetGene(composition, "Damage").value + weight_influence;
 
         //Behavior
         behavior.Add(new Gene("Bravery", 0, 1, true, prng)); // Check if the animal try to leak or to attack

@@ -10,7 +10,7 @@ public class Gene{
     public int max;
     public bool mutable;
 
-    private float factor = .1f;
+    private float factor = .5f;
 
     public Gene(String name, int min, int max, bool mutable, System.Random prng)
     {

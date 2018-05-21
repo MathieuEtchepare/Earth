@@ -22,18 +22,18 @@ public abstract class Entity : MonoBehaviour {
     public void Start()
     {
         transform.position = coord;
-        generateGenome(new System.Random(seed));
-        CreateRenderer();
-
-        gameObject.AddComponent<BoxCollider2D>();
-
-        Rigidbody2D rg2D = gameObject.AddComponent<Rigidbody2D>();
-        rg2D.freezeRotation = true;
         gameObject.tag = "Entity";
         gameObject.layer = 8;
-        gameObject.name = AnimalNameGenerator.GenerateName(composition);
     }
 
+    public void Generate()
+    {
+        CreateRenderer();
+        gameObject.AddComponent<BoxCollider2D>();
+        Rigidbody2D rg2D = gameObject.AddComponent<Rigidbody2D>();
+        rg2D.freezeRotation = true;
+        gameObject.name = AnimalNameGenerator.GenerateName(composition);
+    }
     public void CreateRenderer()
     {
         if (GetComponent<SpriteRenderer>())
@@ -55,7 +55,7 @@ public abstract class Entity : MonoBehaviour {
     }
 
     public abstract Texture2D GenerateTexture();
-    public abstract void generateGenome(System.Random prng);
+    public abstract void GenerateGenome(System.Random prng);
 
 
 }
