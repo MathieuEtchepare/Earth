@@ -11,7 +11,7 @@ public class EntityManager : MonoBehaviour {
 
     public int groupe = 10;
 
-    /*
+
     public void GenerateAnimals()
     {
         for(int grp = 0; grp < groupe; grp++)
@@ -50,11 +50,11 @@ public class EntityManager : MonoBehaviour {
             }
         }
     }
-    **/
+ 
 
     public void GenerateFlowers()
     {
-        for (int grp = 0; grp < groupe * groupe; grp++)
+        for (int grp = 0; grp < groupe * 4; grp++)
         {
             int xGroup;
             int yGroup;
@@ -66,7 +66,7 @@ public class EntityManager : MonoBehaviour {
                 yGroup = Random.Range(-100, 100);
             } while (ProceduralIsland.instance.map.GetTile(new Vector3Int(xGroup, yGroup, 0)) != ProceduralIsland.instance.tiles[0]);
 
-            for (int a = 0; a < Random.Range(6, 20); a++)
+            for (int a = 0; a < Random.Range(2, 10); a++)
             {
                 GameObject flower = new GameObject();
                 Flower script = flower.AddComponent<Flower>();
@@ -83,45 +83,67 @@ public class EntityManager : MonoBehaviour {
                 script.seed = seed;
 
                 script.GenerateGenome(new System.Random(script.seed));
-                script.Generate();
+                script.GenerateFlower();
 
                 flower.transform.parent = pools.transform;
                 flowers.Add(flower);
             }
         }
     }
+       
+    /**
+    public void GenerateFlowers()
+    {
+        GameObject flower = new GameObject();
+        Flower script = flower.AddComponent<Flower>();
+        script.coord = new Vector2(0 + .5f, 0 + .5f);
+        script.seed = 56456;
 
-    
-      public void GenerateAnimals()
+        script.GenerateGenome(new System.Random(script.seed));
+        script.GenerateFlower();
+
+        flower.transform.parent = pools.transform;
+        flowers.Add(flower);
+
+    }
+
+    public void GenerateAnimals()
       {
-            GameObject animal = new GameObject();
-            Animal script = animal.AddComponent<Animal>();
-            script.coord = new Vector2(0 + .5f, 0 + .5f);
-            script.seed = 56456;
+        GameObject animal = new GameObject();
+        Animal script = animal.AddComponent<Animal>();
+        script.coord = new Vector2(0 + .5f, 0 + .5f);
+        script.seed = 56456;
 
-            script.GenerateGenome(new System.Random(script.seed));
-            script.Generate();
+        script.GenerateGenome(new System.Random(script.seed));
+        script.Generate();
 
-            animal.transform.parent = pools.transform;
-            animals.Add(animal);
+        animal.transform.parent = pools.transform;
+        animals.Add(animal);
 
-            GameObject animal_2 = new GameObject();
-            Animal script_2 = animal_2.AddComponent<Animal>();
-            script_2.coord = new Vector2(0 + .5f, 0 + .5f);
-            script_2.seed = 56456;
+        GameObject animal_2 = new GameObject();
+        Animal script_2 = animal_2.AddComponent<Animal>();
+        script_2.coord = new Vector2(0 + .5f, 0 + .5f);
+        script_2.seed = 56456;
 
-            script_2.GenerateGenome(new System.Random(script_2.seed));
-            script_2.Generate();
+        script_2.GenerateGenome(new System.Random(script_2.seed));
+        script_2.Generate();
 
-            animal_2.transform.parent = pools.transform;
-            animals.Add(animal_2);
+        animal_2.transform.parent = pools.transform;
+        animals.Add(animal_2);
 
       }
+    */
 
     public void AddAnimal(GameObject animal)
     {
         animal.transform.parent = pools.transform;
         animals.Add(animal);
+    }
+
+    public void AddFlower(GameObject flower)
+    {
+        flower.transform.parent = pools.transform;
+        flowers.Add(flower);
     }
 
     // Update is called once per frame

@@ -52,8 +52,8 @@ public abstract class FlowerSpriteGeneration {
     public static void Bloom(List<Gene> appearance, int[,] pixel, int w, int h, int x, int y)
     {
         int type = Gene.GetGene(appearance, "Bloom").value;
-        Debug.Log(x);
-        for(int i = -w/2; i <= w/2; i++)
+
+        for (int i = -w/2; i <= w/2; i++)
         {
             pixel[x + i, y] = (int)coloration.SECONDARY;
         }

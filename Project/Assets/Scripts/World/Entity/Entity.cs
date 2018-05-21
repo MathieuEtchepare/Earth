@@ -23,7 +23,6 @@ public abstract class Entity : MonoBehaviour {
     {
         transform.position = coord;
         gameObject.tag = "Entity";
-        gameObject.layer = 8;
     }
 
     public void Generate()
@@ -33,7 +32,20 @@ public abstract class Entity : MonoBehaviour {
         Rigidbody2D rg2D = gameObject.AddComponent<Rigidbody2D>();
         rg2D.freezeRotation = true;
         gameObject.name = AnimalNameGenerator.GenerateName(composition);
+        gameObject.layer = 8;
     }
+
+    public void GenerateFlower()
+    {
+        CreateRenderer();
+        gameObject.AddComponent<BoxCollider2D>();
+        gameObject.GetComponent<BoxCollider2D>().isTrigger = true;
+        Rigidbody2D rg2D = gameObject.AddComponent<Rigidbody2D>();
+        rg2D.constraints = RigidbodyConstraints2D.FreezeAll;
+        gameObject.name = AnimalNameGenerator.GenerateName(composition);
+        gameObject.layer = 9;
+    }
+
     public void CreateRenderer()
     {
         if (GetComponent<SpriteRenderer>())

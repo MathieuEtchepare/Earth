@@ -16,6 +16,7 @@ public class Animal : Entity
     public float speed;
     public int weight;
     public int vision;
+    public bool carnivorous;
 
     public static float CHANGE_BEHAVIOR_PERIOD = 2f; //milliseconds
     private float lastChangedBehaviorTime = 0; //milliseconds
@@ -37,6 +38,7 @@ public class Animal : Entity
 
     public void Update()
     {
+        if (currLife < 0) Destroy(this.gameObject);
         Breath();
         Envy();
 
@@ -90,7 +92,19 @@ public class Animal : Entity
             }
             if (currFood <= .5f * food && currBehaviour == Behavior.WAIT)
             {
-                direction = ScanEntity(false);
+                if (carnivorous)
+                {
+                    direction = ScanEntity(false);
+                    if (currFood <= .25f * food && direction.x != 9999 && direction.y != 9999)
+                    {
+                        direction = ScanEntity(true);
+                    }
+                }
+                else
+                {
+                    direction = ScanFlower();
+                }
+
                 if (direction.x != 9999 && direction.y != 9999)
                 {
                     direction.Normalize();
@@ -150,6 +164,24 @@ public class Animal : Entity
         this.currLife -= dmg;
 
     }
+
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        
+        if (currBehaviour == Behavior.HUNT && col.transform.tag == "Entity" && !carnivorous)
+        {
+            Flower a = col.gameObject.GetComponent<Flower>();
+            if (a != null)
+            {
+                currBehaviour = Behavior.WAIT;
+                lastChangedBehaviorTime = Random.Range(CHANGE_BEHAVIOR_PERIOD, CHANGE_BEHAVIOR_PERIOD);
+                this.currFood += 8;
+                if (this.currFood > this.food) this.currFood = this.food;
+                Destroy(a.gameObject);
+            }
+        }
+    }
+
     void OnCollisionEnter2D(Collision2D col)
     {
         direction = new Vector2(-direction.x, -direction.y);
@@ -163,16 +195,23 @@ public class Animal : Entity
             return;
         }
 
-        if (currBehaviour == Behavior.HUNT && col.transform.tag == "Entity")
+        if (currBehaviour == Behavior.HUNT && col.transform.tag == "Entity" && carnivorous)
         {
             Animal a = col.gameObject.GetComponent<Animal>();
-            if(a != null && !SameSpecies(a))
+            if (a != null && !SameSpecies(a))
             {
-                Debug.Log("hit");
                 a.Attacked(this.damage, this.transform.position);
                 currBehaviour = Behavior.WAIT;
                 lastChangedBehaviorTime = Random.Range(CHANGE_BEHAVIOR_PERIOD, CHANGE_BEHAVIOR_PERIOD);
-                this.currFood += 5;
+                this.currFood += 10;
+                if (this.currFood > this.food) this.currFood = this.food;
+            }
+            else if (a != null && currFood <= .25f && carnivorous)
+            {
+                a.Attacked(this.damage, this.transform.position);
+                currBehaviour = Behavior.WAIT;
+                lastChangedBehaviorTime = Random.Range(CHANGE_BEHAVIOR_PERIOD, CHANGE_BEHAVIOR_PERIOD);
+                this.currFood += 16;
                 if (this.currFood > this.food) this.currFood = this.food;
             }
         }
@@ -186,6 +225,8 @@ public class Animal : Entity
                 currBehaviour = Behavior.WALK;
             }
         }
+
+
     }
 
     private void Breath()
@@ -201,6 +242,7 @@ public class Animal : Entity
     {
         if (year != ProceduralIsland.instance.GetComponent<TimeManagement>().actual_year)
         {
+            age++;
             if(currFood > 0)currFood--;
             if(currWater > 0) currWater--;
 
@@ -212,9 +254,12 @@ public class Animal : Entity
 
                 ProceduralIsland.instance.GetComponent<Atmosphere>().co2 += breath;
             }
-            else currLife--;
 
-            age++;
+            if(oxygene < 0 || currFood == 0 || currWater == 0 || age > 100) currLife--;
+            else
+            {
+                if (currLife < life) currLife++;
+            }
             year = ProceduralIsland.instance.GetComponent<TimeManagement>().actual_year;
         }
     }
@@ -317,7 +362,6 @@ public class Animal : Entity
     private Vector3 ScanEntity(bool same)
     {
         Vector3 pos = new Vector3(9999, 9999);
-        Debug.Log("search");
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, vision);
         for (int i = 0; i < colliders.Length; i++)
         {
@@ -327,9 +371,24 @@ public class Animal : Entity
                 {
                     pos.x = colliders[i].GetComponent<Animal>().transform.position.x - (int)transform.position.x;
                     pos.y = colliders[i].GetComponent<Animal>().transform.position.y - (int)transform.position.y;
-                    Debug.Log(pos);
                     return pos;
                 }
+            }
+        }
+        return pos;
+    }
+
+    private Vector3 ScanFlower()
+    {
+        Vector3 pos = new Vector3(9999, 9999);
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, vision);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            if (colliders[i].tag == "Entity" && colliders[i].GetComponent<Flower>())
+            {
+                pos.x = colliders[i].GetComponent<Flower>().transform.position.x - (int)transform.position.x;
+                pos.y = colliders[i].GetComponent<Flower>().transform.position.y - (int)transform.position.y;
+                return pos;
             }
         }
         return pos;
@@ -412,6 +471,8 @@ public class Animal : Entity
         script.speed = (float)(Gene.GetGene(script.composition, "Speed").value) / script.weight + (float)(Gene.GetGene(script.appearance, "Paws H").value / 8);
         script.vision = Gene.GetGene(script.composition, "Vision").value + script.DetermineHeight() / 2;
         script.damage = Gene.GetGene(script.composition, "Damage").value + weight_influence;
+        if (Gene.GetGene(script.behavior, "Carnivorous").value == 0) script.carnivorous = false;
+        else script.carnivorous = true;
 
         script.Generate();
 
@@ -466,7 +527,7 @@ public class Animal : Entity
         composition.Add(new Gene("Hunger", 5, 20, true, prng));
         food = Gene.GetGene(composition, "Hunger").value - weight_influence;
         currFood = food;
-        composition.Add(new Gene("Life", 1, 5, true, prng));
+        composition.Add(new Gene("Life", 15, 25, true, prng));
         life = Gene.GetGene(composition, "Life").value + weight_influence;
         currLife = life;
         composition.Add(new Gene("Breath", 0, 10, true, prng));
@@ -482,5 +543,8 @@ public class Animal : Entity
         //Behavior
         behavior.Add(new Gene("Bravery", 0, 1, true, prng)); // Check if the animal try to leak or to attack
         behavior.Add(new Gene("Carnivorous", 0, 1, true, prng)); // Check if the animal try to leak or to attack
+
+        if (Gene.GetGene(behavior, "Carnivorous").value == 0) carnivorous = false;
+        else carnivorous = true;
     }
 }

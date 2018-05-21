@@ -19,8 +19,52 @@ public class Flower : Entity
 
     public void Update()
     {
-        
+        if (year != ProceduralIsland.instance.GetComponent<TimeManagement>().actual_year)
+        {
+            if (Random.Range(0, 20) == 0) Children();
+            if (Random.Range(0, 30) == 0) Destroy(this.gameObject);
+            year = ProceduralIsland.instance.GetComponent<TimeManagement>().actual_year;
+        }
     }
+
+    public void Children()
+    {
+        GameObject flower = new GameObject();
+        Flower script = flower.AddComponent<Flower>();
+
+        int x, y;
+        do
+        {
+            x = Random.Range(-10, 10);
+            y = Random.Range(-10, 10);
+        } while (ProceduralIsland.instance.map.GetTile(new Vector3Int(x + (int)transform.position.x, y + (int)transform.position.y, 0)) != ProceduralIsland.instance.tiles[0] && ProceduralIsland.instance.map.GetTile(new Vector3Int(x + (int)transform.position.x, y + (int)transform.position.y, 0)) != ProceduralIsland.instance.tiles[1]);
+
+        script.coord = new Vector2(transform.position.x + x, transform.position.y + y);
+        script.seed = this.seed + Random.Range(0, 20);
+
+        for (int i = 0; i < appearance.Count; i++)
+        {
+            script.appearance.Add(this.appearance[i]);
+            if (Random.Range(0, 50) == 0) script.appearance[i].Mutate();
+        }
+
+        for (int i = 0; i < composition.Count; i++)
+        {
+            script.composition.Add(this.composition[i]);
+            if (Random.Range(0, 50) == 0) script.composition[i].Mutate();
+        }
+
+        for (int i = 0; i < behavior.Count; i++)
+        {
+            script.behavior.Add(this.behavior[i]);
+            if (Random.Range(0, 20) == 0) script.behavior[i].Mutate();
+        }
+
+        script.GenerateFlower();
+
+        ProceduralIsland.instance.GetComponent<EntityManager>().AddFlower(flower);
+    }
+
 
     public override Texture2D GenerateTexture()
     {
