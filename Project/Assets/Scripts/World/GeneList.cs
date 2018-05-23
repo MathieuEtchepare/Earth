@@ -47,7 +47,8 @@ public class GeneList : MonoBehaviour {
     }
 
     public void DestroyList(){
-        Transform transform = GetComponent<Transform>();
+        Transform transform;
+        transform = GetComponent<Transform>();
         foreach (Transform child in transform)
         {
                 Destroy(child.gameObject);

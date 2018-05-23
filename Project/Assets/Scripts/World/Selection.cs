@@ -101,7 +101,7 @@ public class Selection : MonoBehaviour {
         year.text = "Year: " + ProceduralIsland.instance.GetComponent<TimeManagement>().actual_year.ToString();
         float o2 = ProceduralIsland.instance.GetComponent<Atmosphere>().oxygene;
         float co2 = ProceduralIsland.instance.GetComponent<Atmosphere>().co2;
-        o2Bar.fillAmount = (o2 - co2) / (o2 + co2);
+        o2Bar.fillAmount = o2 / (o2 + co2);
     }
 
     public void Onclick(){

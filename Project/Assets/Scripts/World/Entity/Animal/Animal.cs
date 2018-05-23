@@ -38,7 +38,7 @@ public class Animal : Entity
 
     public void Update()
     {
-        if (currLife < 0) Destroy(this.gameObject);
+        if (currLife < 0) Destroy(gameObject);
         Breath();
         Envy();
 
@@ -251,16 +251,18 @@ public class Animal : Entity
             if (oxygene > 0)
             {
                 ProceduralIsland.instance.GetComponent<Atmosphere>().oxygene -= breath;
-
                 ProceduralIsland.instance.GetComponent<Atmosphere>().co2 += breath;
             }
 
-            if(oxygene < 0 || currFood == 0 || currWater == 0 || age > 100) currLife--;
+            if(currFood == 0 || currWater == 0 || age > 100) currLife--;
             else
             {
                 if (currLife < life) currLife++;
             }
             year = ProceduralIsland.instance.GetComponent<TimeManagement>().actual_year;
+
+            if (oxygene < 200 * breath) currLife -= 2;
+            if (oxygene < breath) currLife = -1;
         }
     }
 

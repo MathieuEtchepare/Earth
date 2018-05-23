@@ -23,6 +23,7 @@ public class Flower : Entity
         {
             if (Random.Range(0, 20) == 0) Children();
             if (Random.Range(0, 30) == 0) Destroy(this.gameObject);
+            Photosynthesis();
             year = ProceduralIsland.instance.GetComponent<TimeManagement>().actual_year;
         }
     }
@@ -99,6 +100,12 @@ public class Flower : Entity
         return texture;
     }
 
+    public void Photosynthesis()
+    {
+        ProceduralIsland.instance.GetComponent<Atmosphere>().co2 -= Gene.GetGene(behavior, "Photosynthesis").value;
+        ProceduralIsland.instance.GetComponent<Atmosphere>().oxygene += Gene.GetGene(behavior, "Photosynthesis").value;
+    }
+
     public int DetermineWidth()
     {
         int lWidth = Gene.GetGene(appearance, "Leaf W").value;
@@ -144,5 +151,7 @@ public class Flower : Entity
         composition.Add(new Gene("Syllable 1", 0, 19, true, prng));
         composition.Add(new Gene("Syllable 2", 0, 19, true, prng));
         composition.Add(new Gene("Syllable 3", 0, 19, true, prng));
+
+        behavior.Add(new Gene("Photosynthesis", 0, 4, true, prng));
     }
 }
