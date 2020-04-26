@@ -81,7 +81,7 @@ public class Animal : Entity
         }
         else
         {
-            if (currWater < .5f * water && currBehaviour == Behavior.WAIT)
+            if (currWater < .5f * water && currBehaviour == Behavior.HUNT)
             {
                 direction = ScanBlocks(2, ProceduralIsland.instance.water);
                 if (direction.x != 9999 && direction.y != 9999)
@@ -90,7 +90,7 @@ public class Animal : Entity
                     currBehaviour = Behavior.WATER;
                 }
             }
-            if (currFood <= .5f * food && currBehaviour == Behavior.WAIT)
+            if (currFood <= .5f * food && currBehaviour != Behavior.WATER)
             {
                 if (carnivorous)
                 {
@@ -254,7 +254,7 @@ public class Animal : Entity
                 ProceduralIsland.instance.GetComponent<Atmosphere>().co2 += breath;
             }
 
-            if(currFood == 0 || currWater == 0 || age > 100) currLife--;
+            if(currFood == 0 || currWater == 0 || age > 100) currLife -= (float)System.Math.Round(0.1*life);
             else
             {
                 if (currLife < life) currLife++;
@@ -466,11 +466,12 @@ public class Animal : Entity
         script.water = Gene.GetGene(script.composition, "Thirst").value - weight_influence;
         script.currWater = script.water;
         script.food = Gene.GetGene(script.composition, "Hunger").value - weight_influence;
-        script.currFood = script.food;
+        script.currFood = (float)System.Math.Round((currFood + a.currFood) / 2);
         script.life = Gene.GetGene(script.composition, "Life").value + weight_influence;
         script.currLife = script.life;
         script.breath = Gene.GetGene(script.composition, "Breath").value + weight_influence;
         script.speed = (float)(Gene.GetGene(script.composition, "Speed").value) / script.weight + (float)(Gene.GetGene(script.appearance, "Paws H").value / 8);
+        script.speed *= 5;
         script.vision = Gene.GetGene(script.composition, "Vision").value + script.DetermineHeight() / 2;
         script.damage = Gene.GetGene(script.composition, "Damage").value + weight_influence;
         if (Gene.GetGene(script.behavior, "Carnivorous").value == 0) script.carnivorous = false;
@@ -536,6 +537,7 @@ public class Animal : Entity
         breath = Gene.GetGene(composition, "Breath").value + weight_influence;
         composition.Add(new Gene("Speed", 50, 150, true, prng));
         speed = (float)(Gene.GetGene(composition, "Speed").value) / weight + (float)(Gene.GetGene(appearance, "Paws H").value / 8);
+        speed *= 5;
         composition.Add(new Gene("Death", 10, 200, true, prng));
         composition.Add(new Gene("Vision", 5, 20, true, prng));
         vision = Gene.GetGene(composition, "Vision").value + DetermineHeight() / 2;

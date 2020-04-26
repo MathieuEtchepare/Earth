@@ -47,6 +47,7 @@ public class Selection : MonoBehaviour {
                 infos.text += "Speed: " + a.speed + "\n";
                 infos.text += "Weight: " + a.weight + "\n";
                 infos.text += "Age: " + a.age + "\n";
+                infos.text += "Current Behaviour: " + a.currBehaviour + "\n";
             }
             else if (selected.GetComponent<MonoBehaviour>().GetType().Name == "Flower")
             {
