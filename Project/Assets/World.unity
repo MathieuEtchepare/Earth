@@ -3455,7 +3455,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 200
   height: 200
-  seed: 56
+  seed: 69
   scale: 40
   octaves: 4
   persistance: 0.45

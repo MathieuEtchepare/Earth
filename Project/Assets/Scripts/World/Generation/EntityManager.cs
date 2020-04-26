@@ -11,7 +11,7 @@ public class EntityManager : MonoBehaviour {
 
     public int groupe = 10;
 
-
+    
     public void GenerateAnimals()
     {
         for(int grp = 0; grp < groupe; grp++)
@@ -91,7 +91,7 @@ public class EntityManager : MonoBehaviour {
         }
     }
        
-    /**
+    /*
     public void GenerateFlowers()
     {
         GameObject flower = new GameObject();
@@ -112,7 +112,7 @@ public class EntityManager : MonoBehaviour {
         GameObject animal = new GameObject();
         Animal script = animal.AddComponent<Animal>();
         script.coord = new Vector2(0 + .5f, 0 + .5f);
-        script.seed = 56456;
+        script.seed = 1;
 
         script.GenerateGenome(new System.Random(script.seed));
         script.Generate();
@@ -123,7 +123,7 @@ public class EntityManager : MonoBehaviour {
         GameObject animal_2 = new GameObject();
         Animal script_2 = animal_2.AddComponent<Animal>();
         script_2.coord = new Vector2(0 + .5f, 0 + .5f);
-        script_2.seed = 56456;
+        script_2.seed = 1;
 
         script_2.GenerateGenome(new System.Random(script_2.seed));
         script_2.Generate();
@@ -131,8 +131,8 @@ public class EntityManager : MonoBehaviour {
         animal_2.transform.parent = pools.transform;
         animals.Add(animal_2);
 
-      }
-    */
+      }*/
+    
 
     public void AddAnimal(GameObject animal)
     {
